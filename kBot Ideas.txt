@@ -1,0 +1,10 @@
+BOT FEATURES:
+
+Play music from youtube
+Tell jokes from other website api
+Vote to mute
+Notifications people joining and leaving
+Allow admin to disable bot with command
+    use boolean value for bot state
+
+
