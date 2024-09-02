@@ -21,6 +21,7 @@ def run_bot():
     @bot.event
     async def on_ready():
         print(f'{bot.user} is online')
+        print("The current week is: " + str(week))
 
     #Displays the author's entire weekly schedule for the regular season
     @bot.command()
@@ -60,23 +61,74 @@ def run_bot():
                 return
         await msg.send("User not found")
 
-    #Advances the week
-    # @bot.command()
-    # async def advance(msg):
-    #     author = str(msg.message.author)
-    #     global week
-    #     await msg.send(week)
-    #     if author == "kua13":
-    #         global week
-    #         week += 1
-    #         await msg.send("The week has been adavanced")
-    #         await msg.send("We are now on week " + week)
-
     #Displays the author's discord ID
     @bot.command()
     async def whoAmI(ctx):
         await ctx.send(f'You are {ctx.message.author}')
-        
+
+    @bot.command()
+    async def testMsg(cmd, msg):
+        await cmd.send(msg)
+    
+    @bot.command()
+    async def getUserList(cmd, msg):
+        author = str(cmd.message.author)
+        if author != "kua13":
+            cmd.send("You cannot use this command")
+            return
+        target = msg
+        player = find(str(target))
+        output = ""
+        for opp in player["schedule"]:
+            oppTeam = str(opp)
+            if isUser(oppTeam) == True:
+                output += "true, "
+            else:
+                output += "false, "
+        await cmd.send(output)
+
+    @bot.command()
+    async def users(cmd):
+        output = "The players who have user games this week are:" + "\n"
+        for player in players:
+            if player["is_user"][week] == True:
+                output += player["name"] + "\n"
+        await cmd.send(output)
+
+    @bot.command()
+    async def user_matches(cmd):
+        users = []
+        for player in players:
+            if player["is_user"][week] == True:
+                users.append(player)
+        output = "The user matches for this week are:" + "\n" + "\n"
+        while len(users) > 0:
+            user = users[0]
+            output += user["name"] + " (" + user["team"] + ")" + " vs. "
+            oppTeam = user["schedule"][week] 
+            opp = findTeam(oppTeam)
+            output += opp["name"] + " (" + opp["team"] + ")" + "\n"
+            users.remove(user)
+            users.remove(opp)
+        await cmd.send(output)
+                
+    def findTeam(team):
+        for player in players:
+            if player["team"] == team:
+                return player
+        return "team not found"
+
+    def find(user_name):
+        for player in players:
+            if player["name"] == user_name:
+                return player
+        return "user not found"
+    
+    def isUser(team):
+        for player in players:
+            if team == player["team"]:
+                return True
+        return False
 
     bot.run(token)
 
