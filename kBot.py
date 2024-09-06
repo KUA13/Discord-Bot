@@ -113,7 +113,7 @@ def run_bot():
         await cmd.send(output)
 
     @bot.command()
-    async def week(cmd):
+    async def current_week(cmd):
         await cmd.send("It is currently week: " + str(week))
                 
     def findTeam(team):
