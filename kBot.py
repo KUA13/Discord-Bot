@@ -111,6 +111,10 @@ def run_bot():
             users.remove(user)
             users.remove(opp)
         await cmd.send(output)
+
+    @bot.commands()
+    async def week(cmd):
+        await cmd.send("It is currently week: " + str(week))
                 
     def findTeam(team):
         for player in players:
