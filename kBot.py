@@ -39,29 +39,34 @@ def run_bot():
     
     #Displays this week's matchup for the author
     @bot.command()
-    async def matchup(msg):
-        author = str(msg.message.author)
+    async def matchup(cmd, msg=None):
+        if msg == None:
+            target = str(cmd.message.author)
+        else:
+            target = msg
+            target = find(target)
+            target = target["discord_id"]
         for player in players:
-            if author == player["discord_id"]:
-                author_name = str(player["name"])
+            if target == player["discord_id"]:
+                target_name = str(player["name"])
                 opponent = str(player["schedule"][wk])
                 if opponent == "Bye":
-                    await msg.send(author_name + " you have a bye this week")
+                    await cmd.send(target_name + " has a bye this week")
                     return
-                await msg.send(author_name + " your matchup for this week is: " + opponent)
+                await cmd.send(target_name + "'s matchup for this week is: " + opponent)
                 if opponent == "Georgia":
-                    await msg.send("This team's coach, Yoseph The Shameful, has resigned from the league. You will be playing against a CPU instead.")
+                    await cmd.send("Georgia's coach, Yoseph The Shameful, has resigned from the league. They will be controlled by a CPU instead.")
                     return
                 if player["is_user"][wk] == True:
                     for opp in players:
                         if opp["team"] == opponent:
-                            await msg.send("Your opponent is: " + opp["name"])
+                            await cmd.send(target_name + "'s opponent is: " + opp["name"])
                             psn = str(opp["psn"])
-                            await msg.send("Their PSN ID is: " + psn)
+                            await cmd.send(opp["name"] + "'s PSN ID is: " + psn)
                 else:
-                    await msg.send("You are playing a CPU")
+                    await cmd.send(target_name + " is playing a CPU")
                 return
-        await msg.send("User not found")
+        await cmd.send("User not found")
 
     #Displays a given user's schedule. No specified user returns the author's schedule
     @bot.command()
@@ -173,7 +178,7 @@ def run_bot():
 
     def find(user_name):
         for player in players:
-            if player["name"] == user_name:
+            if player["name"].lower() == user_name.lower():
                 return player
         return "user not found"
     
