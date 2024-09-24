@@ -87,12 +87,6 @@ def run_bot():
             schedule += "Week " + str(i) + ": " + player["schedule"][i] + "\n"
         await cmd.send(schedule)
 
-
-    #Displays the author's discord ID
-    @bot.command()
-    async def whoAmI(ctx):
-        await ctx.send(f'You are {ctx.message.author}')
-
     
     #Displays the isUser[] for the given user
     @bot.command()
@@ -164,30 +158,34 @@ def run_bot():
             users.clear()
         await cmd.send(output)
             
-
-
+    #Outputs the current week
     @bot.command()
     async def week(cmd):
         await cmd.send("It is currently week: " + str(wk))
                 
+
+    #Returns the player who plays as the given team
     def findTeam(team):
         for player in players:
             if player["team"] == team:
                 return player
         return "team not found"
 
+    #Returns the player with the given given name
     def find(user_name):
         for player in players:
             if player["name"].lower() == user_name.lower():
                 return player
         return "user not found"
     
+    #Returns the player with the given discord ID
     def findID(ID):
         for player in players:
             if player["discord_id"] == ID:
                 return player
         return "user not found"
     
+    #Returns true if the entered team is controlled by a user, false otherwise
     def isUser(team):
         for player in players:
             if team == player["team"]:
