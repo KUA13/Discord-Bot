@@ -4,7 +4,7 @@ import json
 
 
 def run_bot():
-    with open('config.json', 'r') as conf:
+    with open('config2.json', 'r') as conf:
         data = json.load(conf)
         token = data["TOKEN"]
         global players
@@ -50,13 +50,10 @@ def run_bot():
             if target == player["discord_id"]:
                 target_name = str(player["name"])
                 opponent = str(player["schedule"][wk])
-                if opponent == "Bye":
+                if opponent == "Bye" or opponent == "Open":
                     await cmd.send(target_name + " has a bye this week")
                     return
                 await cmd.send(target_name + "'s matchup for this week is: " + opponent)
-                if opponent == "Georgia":
-                    await cmd.send("Georgia's coach, Yoseph The Shameful, has resigned from the league. They will be controlled by a CPU instead.")
-                    return
                 if player["is_user"][wk] == True:
                     for opp in players:
                         if opp["team"] == opponent:
@@ -105,6 +102,29 @@ def run_bot():
             else:
                 output += "false, "
         await cmd.send(output)
+
+    #Displays the isUser[] list for all users
+    @bot.command()
+    async def getAllUserLists(cmd):
+        author = str(cmd.message.author)
+        if author != "kua13":
+            cmd.send("You cannot use this command")
+            return
+        output = ""
+        for player in players:
+            output += str(player["name"]) + ": ["
+            for opp in player["schedule"]:
+                oppTeam = str(opp)
+                if isUser(oppTeam) == True:
+                    output += "true, "
+                else:
+                    output += "false, "
+         #   output += "]" + "\n"
+            print(output)
+            output = ""
+       # await cmd.send(output[:1900])
+
+
 
     #Displays the users who have user matches this week
     @bot.command()
@@ -191,6 +211,7 @@ def run_bot():
             if team == player["team"]:
                 return True
         return False
+
 
     bot.run(token)
 
