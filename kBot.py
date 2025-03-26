@@ -4,7 +4,7 @@ import json
 
 
 def run_bot():
-    with open('config2.json', 'r') as conf:
+    with open('config5.json', 'r') as conf:
         data = json.load(conf)
         token = data["TOKEN"]
         global players
@@ -72,6 +72,9 @@ def run_bot():
         if msg == None:
             author = cmd.message.author
             player = findID(str(author))
+            if player == "user not found":
+                await cmd.send(player)
+                player
             target = str(player["name"])
         else:
             target = msg
@@ -81,7 +84,11 @@ def run_bot():
             return
         schedule = target + "'s Schedule:" + "\n"
         for i in range(0, len(player["schedule"])):
-            schedule += "Week " + str(i) + ": " + player["schedule"][i] + "\n"
+            schedule += "Week " + str(i) + ": " + player["schedule"][i]
+            if isUser(player["schedule"][i]):
+                opp = findTeam(player["schedule"][i])
+                schedule += " (" + opp["name"] + ")"
+            schedule += "\n"
         await cmd.send(schedule)
 
     
@@ -111,19 +118,23 @@ def run_bot():
             cmd.send("You cannot use this command")
             return
         output = ""
+        counter = 0
         for player in players:
-            output += str(player["name"]) + ": ["
+            output += player["name"] + ": "
             for opp in player["schedule"]:
                 oppTeam = str(opp)
                 if isUser(oppTeam) == True:
                     output += "true, "
                 else:
                     output += "false, "
-         #   output += "]" + "\n"
-            print(output)
-            output = ""
-       # await cmd.send(output[:1900])
-
+            output += "\n" + "\n"
+            counter += 1
+            if counter == 7:
+                await cmd.send(output)
+                output = ""
+                counter = 0
+        await cmd.send(output)
+        
 
 
     #Displays the users who have user matches this week
@@ -137,16 +148,23 @@ def run_bot():
 
     #Displays the user matches for the current week
     @bot.command()
-    async def user_matches(cmd):
+    async def user_matches(cmd, msg=None):
+        targetWK = wk
+        if msg != None:
+            targetWK = int(msg)
         users = []
         for player in players:
-            if player["is_user"][wk] == True:
+            if player["is_user"][targetWK] == True:
                 users.append(player)
-        output = "The user matches for this week are:" + "\n" + "\n"
+        output = "The user matches for week " + str(targetWK) +  " are:" + "\n" + "\n"
+        # for user in users:
+        #     print(user["name"] + ", " + str(type(user)))
+        #     print(user)
+        print()
         while len(users) > 0:
             user = users[0]
             output += user["name"] + " (" + user["team"] + ")" + " vs. "
-            oppTeam = user["schedule"][wk] 
+            oppTeam = user["schedule"][targetWK] 
             opp = findTeam(oppTeam)
             output += opp["name"] + " (" + opp["team"] + ")" + "\n"
             users.remove(user)
@@ -156,11 +174,20 @@ def run_bot():
     #Displays all remaining user matches for the season
     @bot.command()
     async def rem_user_matches(cmd):
+        author = str(cmd.author)
+        if author != "kua13" and author != "aadegun":
+            await cmd.send("You are not authorized to use this command")
+            return
         wk_count = wk
         output = ""
         users = []
+        sendCount = 0
         while(wk_count < 15):
-            print(wk_count)
+            if sendCount == 5:
+                output += "\n"
+                await cmd.send(output)
+                output = ""
+                sendCount = 0
             output += "The user matches for week " + str(wk_count) + " are: " + "\n"
             for player in players:
                 if player["is_user"][wk_count] == True:
@@ -175,6 +202,7 @@ def run_bot():
                 users.remove(opp)
             output += "\n"
             wk_count += 1
+            sendCount += 1
             users.clear()
         await cmd.send(output)
             
@@ -212,6 +240,11 @@ def run_bot():
                 return True
         return False
 
+    def findTeam(team):
+        for player in players:
+            if team == player["team"]:
+                return player
+        return "Player not found"
 
     bot.run(token)
 

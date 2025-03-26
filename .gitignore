@@ -1,4 +1,4 @@
-config.json
-config2.json
+*.json
+!spec/*.json
 kBot Ideas.txt
 __pycache__
