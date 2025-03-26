@@ -74,7 +74,7 @@ def run_bot():
             player = findID(str(author))
             if player == "user not found":
                 await cmd.send(player)
-                player
+                return player
             target = str(player["name"])
         else:
             target = msg
